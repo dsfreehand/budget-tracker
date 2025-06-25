@@ -1,18 +1,39 @@
 import React, { useState } from "react";
+import { useMutation, gql } from "@apollo/client";
+import "../styles/TransactionForm.css";
 
 interface TransactionFormProps {
-  onAdd: () => void; // callback to refresh transactions after adding
+  onAdd: () => void;
 }
+
+const ADD_TRANSACTION = gql`
+  mutation AddTransaction(
+    $type: String!
+    $amount: Float!
+    $date: String!
+    $category: String
+  ) {
+    addTransaction(
+      type: $type
+      amount: $amount
+      date: $date
+      category: $category
+    ) {
+      id
+    }
+  }
+`;
 
 const TransactionForm: React.FC<TransactionFormProps> = ({ onAdd }) => {
   const [type, setType] = useState<"Income" | "Expense">("Income");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
 
+  const [addTransaction] = useMutation(ADD_TRANSACTION);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation: category required for Expenses
     if (type === "Expense" && category.trim() === "") {
       alert("Category is required for expenses.");
       return;
@@ -23,40 +44,29 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAdd }) => {
       return;
     }
 
-    const newTransaction = {
+    const variables = {
       type,
       amount: parseFloat(amount),
       date: new Date().toISOString(),
-      category: category.trim() || undefined,
+      category: category.trim() || null,
     };
 
     try {
-      const res = await fetch("/api/transactions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newTransaction),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        alert(
-          "Failed to add transaction: " + (errData.message || res.statusText)
-        );
-        return;
-      }
+      await addTransaction({ variables });
+      console.log("✅ Transaction mutation completed");
 
       setAmount("");
       setCategory("");
       setType("Income");
-      onAdd(); // refresh transactions list
-    } catch (error) {
+      onAdd();
+    } catch (error: any) {
       alert("Error submitting transaction");
       console.error(error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
+    <form onSubmit={handleSubmit} className="transaction-form">
       <div>
         <label>
           Type:

@@ -1,61 +1,67 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 import Transaction from "./models/Transaction";
+import User from "./models/User";
 
 dotenv.config();
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/budget-tracker";
 
-const testData = [
-  // Sample transactions for seeding with random dates between 2025-01-01 and today's date
-
-  {
-    type: "Income",
-    amount: 2000,
-    date: new Date("2025-01-15"),
-    category: "Salary",
-  },
-  {
-    type: "Expense",
-    amount: 150,
-    date: new Date("2025-01-20"),
-    category: "Groceries",
-  },
-  {
-    type: "Expense",
-    amount: 120,
-    date: new Date("2025-02-05"),
-    category: "Utilities",
-  },
-  {
-    type: "Expense",
-    amount: 250,
-    date: new Date("2025-02-15"),
-    category: "Entertainment",
-  },
-  {
-    type: "Expense",
-    amount: 180,
-    date: new Date("2025-03-05"),
-    category: "Dining",
-  },
-  {
-    type: "Expense",
-    amount: 220,
-    date: new Date("2025-03-15"),
-    category: "Shopping",
-  },
-];
-
-const seedTransactions = async () => {
+const seedData = async () => {
   try {
     await mongoose.connect(MONGO_URI);
+    console.log("✅ Connected to MongoDB");
 
     await Transaction.deleteMany();
+    await User.deleteMany();
 
-    // const result = await Transaction.insertMany(testData);
-    // console.log("✅ Seeded transactions:", result);
+    // Create dev user
+    const email = "e@mail.com";
+    const plainPassword = "email";
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
+
+    const devUser = await User.create({
+      email,
+      passwordHash,
+    });
+
+    console.log("👤 Development user created:", devUser.email);
+
+    // Sample transactions
+    const transactions = [
+      {
+        userId: devUser._id,
+        description: "Groceries",
+        amount: 50,
+        date: new Date("2023-10-01"),
+      },
+      {
+        userId: devUser._id,
+        description: "Salary",
+        amount: 2000,
+        date: new Date("2023-10-02"),
+      },
+      {        userId: devUser._id,
+        description: "Utilities",
+        amount: 150,
+        date: new Date("2023-10-03"),
+      },
+      {        userId: devUser._id,
+        description: "Dining Out",
+        amount: 75,
+        date: new Date("2023-10-04"),
+      },
+      {        userId: devUser._id,
+        description: "Gym Membership",
+        amount: 30,
+        date: new Date("2023-10-05"),
+      },
+    ];
+
+
+    console.log("💸 Sample transactions added");
 
     process.exit(0);
   } catch (error) {
@@ -64,4 +70,4 @@ const seedTransactions = async () => {
   }
 };
 
-seedTransactions();
+seedData();

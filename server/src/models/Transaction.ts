@@ -4,7 +4,8 @@ export interface ITransaction extends Document {
   type: "Income" | "Expense";
   amount: number;
   date: Date;
-  category?: string; // new optional field
+  category?: string;
+  userId: mongoose.Types.ObjectId;
 }
 
 const TransactionSchema = new Schema<ITransaction>({
@@ -13,10 +14,16 @@ const TransactionSchema = new Schema<ITransaction>({
   date: { type: Date, required: true },
   category: {
     type: String,
-    required: function () {
+    required: function (this: any) {
       return this.type === "Expense";
     },
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
+
 
 export default mongoose.model<ITransaction>("Transaction", TransactionSchema);

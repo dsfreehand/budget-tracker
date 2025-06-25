@@ -8,9 +8,15 @@
     "client": "npm --prefix client start",
     "build": "npm run build --prefix client",
     "seed": "npm run seed --prefix server"
-
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@types/mongoose": "^5.11.96",
+    "express": "^5.1.0",
+    "express-graphql": "^0.12.0",
+    "graphql": "^16.11.0",
+    "mongoose": "^8.16.0"
   }
 }
