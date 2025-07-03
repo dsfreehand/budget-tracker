@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import App from "./App";
 import AuthForm from "./AuthForm";
 import reportWebVitals from "./reportWebVitals";
-import "./styles/index.css";
+import "./styles/global.css";
 
 import {
   ApolloClient,
@@ -14,12 +14,11 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
-// Set up Apollo Auth Link
 const httpLink = createHttpLink({
-  uri: "/graphql",
+  uri: "http://localhost:5000/graphql",
 });
 
-const authLink = setContext((_, { headers }) => {
+const authLink = setContext((_, { headers }: { headers: any }) => {
   const token = localStorage.getItem("jwt");
   return {
     headers: {
@@ -28,7 +27,6 @@ const authLink = setContext((_, { headers }) => {
     },
   };
 });
-
 
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
@@ -41,16 +39,24 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   return token ? children : <Navigate to="/auth" />;
 };
 
-const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
-root.render(
+// App entry
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ApolloProvider client={client}>
-      <Router>
+      <BrowserRouter basename="/budget-tracker">
         <Routes>
           <Route path="/auth" element={<AuthForm />} />
-          <Route path="/" element={<PrivateRoute><App /></PrivateRoute>} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <App />
+              </PrivateRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
-      </Router>
+      </BrowserRouter>
     </ApolloProvider>
   </React.StrictMode>
 );
