@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import App from "./App";
 import AuthForm from "./AuthForm";
-import reportWebVitals from "./reportWebVitals";
+
 import "./styles/global.css";
 
 import {
@@ -18,11 +18,11 @@ const httpLink = createHttpLink({
   uri: "http://localhost:5000/graphql",
 });
 
-const authLink = setContext((_, { headers }: { headers: any }) => {
+const authLink = setContext((_, prevContext) => {
   const token = localStorage.getItem("jwt");
   return {
     headers: {
-      ...headers,
+      ...(prevContext.headers || {}),
       authorization: token ? `Bearer ${token}` : "",
     },
   };
@@ -60,5 +60,3 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     </ApolloProvider>
   </React.StrictMode>
 );
-
-reportWebVitals();

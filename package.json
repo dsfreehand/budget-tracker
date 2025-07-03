@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "npm --prefix server run dev",
-    "client": "npm --prefix client run dev",
-    "build": "npm run build --prefix client",
-    "seed": "npm run seed --prefix server"
-  },
+  "dev": "concurrently \"npm run server\" \"npm run client\"",
+  "server": "npm --prefix server run dev",
+  "client": "npm --prefix client run dev",
+  "build": "npm run build --prefix client",
+  "deploy": "npm run predeploy --prefix client && npm run deploy --prefix client",
+  "seed": "npm run seed --prefix server"
+}
+,
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
